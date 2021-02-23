@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
 from .forms import *
+from .models import Profile
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
+from django.views import generic
+from django.views.generic.edit import UpdateView, DeleteView
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def home(request):
@@ -71,4 +78,25 @@ def logout_user(request):
         return redirect("accounts:login")
 
 #edit profile
-             
+class UserEditView(generic.UpdateView):
+    form_class = EditProfileForm
+    template_name = 'accounts/edit_profile.html'
+    success_url = reverse_lazy('main:home')
+
+    def get_object(self):
+        return self.request.user
+
+# edit password
+class PasswordsChangeView(PasswordChangeView):
+    from_class = PasswordChangeForm
+    success_url = reverse_lazy('main:home')
+
+@login_required
+def delete_profile(request):
+  if request.method == 'POST':
+    Profile.objects.get(user=request.user).delete()
+    success_url = reverse_lazy('main:home')
+  else:
+    return redirect("accounts:login")
+
+

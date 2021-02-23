@@ -8,7 +8,7 @@ class Movie(models.Model):
     director = models.CharField(max_length=300)
     cast = models.CharField(max_length=300)
     description = models.TextField(max_length=5000)
-    release_date = models.DateField()
+    release_date = models.CharField(max_length=200)
     averageRating = models.FloatField(default=0)
     image = models.URLField(default=None, null=True)
 

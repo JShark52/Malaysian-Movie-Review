@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import *
 from .forms import *
 from django.db.models import Avg
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 def home(request):
@@ -12,9 +13,19 @@ def home(request):
         allMovies = Movie.objects.filter(name__icontains=query)
     else:
         allMovies = Movie.objects.all() # selct * from movie
+        p = Paginator(allMovies, 24)
+
+        page_num = request.GET.get('page', 1)
+
+        try:
+            page = p.page(page_num)
+        except PageNotAnInteger:
+            posts = p.page(1)
+        except EmptyPage:
+            page = p.page(p.num_pages)
     
     context = {
-        "movies": allMovies,
+        "movies": page,
     }
 
     return render(request, 'main/index.html', context)
@@ -165,3 +176,5 @@ def delete_review(request, movie_id, review_id):
             return redirect("main:detail", movie_id)
     else:
         return redirect("accounts:login")
+
+        
